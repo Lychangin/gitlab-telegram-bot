@@ -1,0 +1,12 @@
+[Unit]
+Description=Gitlab Telegram bot
+After=multi-user.target
+
+[Service]
+Type=simple
+
+WorkingDirectory=/root/gitlab-bot/
+ExecStart=/usr/bin/python3 gitlab.py
+
+[Install]
+WantedBy=multi-user.target

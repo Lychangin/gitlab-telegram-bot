@@ -1,0 +1,8 @@
+webhook_host: ''
+webhook_port: ''
+cert: 'self-signed' #self-signed or official
+webhook_ssl_cert: '' #if official then empty
+webhook_ssl_private: '' #if official then empty
+bot_token: ''
+gitlab_url: '' # example https://gitlab.ru/api/v4
+gitlab_token: ''
