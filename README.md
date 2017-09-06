@@ -4,7 +4,7 @@
 
 Structure project
 
-`gitlab-bot`
+`gitlab-telegram-bot`
 
 `├── README.md`
 
@@ -20,7 +20,6 @@ Structure project
 
 `├── project.py`
 
-`└── text.txt`
 
 
 
