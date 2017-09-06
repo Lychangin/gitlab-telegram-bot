@@ -4,5 +4,5 @@ cert: 'self-signed' #self-signed or official
 webhook_ssl_cert: '' #if official then empty
 webhook_ssl_private: '' #if official then empty
 bot_token: ''
-gitlab_url: '' # example https://gitlab.ru/api/v4
-gitlab_token: ''
+gitlab_url: 'https://gitlab.regioncom.ru/api/v4' # example https://gitlab.ru/api/v4
+gitlab_token: 'JqyjAcS2prei1-QrpyFw'

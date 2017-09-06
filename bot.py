@@ -83,42 +83,55 @@ class Bot(Gitlab_api):
         dictionary= self.InputTextMessageContent(inline_query)
         append_list = dictionary['append']
         remove_list = dictionary['remove']
-        for project, title in append_list.items():
-            result.append({'type': 'article', 'id': str(i), 'title': ('{0}  {1}'.format(title, project)),
+        
+        for namespace, title in remove_list['namespace'].items():
+            result.append({'type': 'article', 'id': str(i), 'title': ('delete {0}  {1}'.format(title, namespace)),
                             'input_message_content': {
-                                'message_text': ('/add_subscription {0} {1}'.format(title, project))}})
+                                'message_text': ('/delete_subscription {0} {1}'.format(title, namespace))}})
             i += 1
-        for project, title in remove_list.items():
+        for project, title in remove_list['projects'].items():
             result.append({'type': 'article', 'id': str(i), 'title': ('delete {0}  {1}'.format(title, project)),
                             'input_message_content': {
                                 'message_text': ('/delete_subscription {0} {1}'.format(title, project))}})
             i += 1
+
+        for namespace, title in append_list['namespace'].items():
+            result.append({'type': 'article', 'id': str(i), 'title': ('{0}  {1}'.format(title, namespace)),
+                            'input_message_content': {
+                                'message_text': ('/add_subscription {0} {1}'.format(title, namespace))}})
+            i += 1
+
+        for project, title in append_list['projects'].items():
+            result.append({'type': 'article', 'id': str(i), 'title': ('{0}  {1}'.format(title, project)),
+                            'input_message_content': {
+                                'message_text': ('/add_subscription {0} {1}'.format(title, project))}})
+            i += 1
         return result
 
     def InputTextMessageContent(self, inline_query):
-        projects_dict = dict()
-        projects_dict_rm = dict()
+        projects_dict = {'namespace':{}, 'projects':{} }
+        projects_dict_rm = {'namespace':{}, 'projects':{} }
         projects_json = self.load_projects()
         for namespace, projects in projects_json.items():
             if len(inline_query['query']) > 2:
                 if inline_query['query'] in namespace:
                     if inline_query['from'] in projects_json['namespaces'][namespace]:
-                        projects_dict_rm[namespace] = 'namespace'
+                        projects_dict_rm['namespace'][namespace] = 'namespace'
                     else:
-                        projects_dict[namespace] = 'namespace'
+                        projects_dict['namespace'][namespace] = 'namespace'
                         for project in projects:
                             if inline_query['query'] in project:
                                 if inline_query['from'] in projects[project]:
-                                    projects_dict_rm[project] = 'project'
+                                    projects_dict_rm['projects'][project] = 'project'
                                 else:
-                                    projects_dict[project] = 'project'
+                                    projects_dict['projects'][project] = 'project'
                 else:
                     for project in projects:
                         if inline_query['query'] in project and 'namespaces' not in namespace:
                             if inline_query['from'] in projects[project]:
-                                projects_dict_rm[project] = 'project'
+                                projects_dict_rm['projects'][project] = 'project'
                             else:
-                                projects_dict[project] = 'project'
+                                projects_dict['projects'][project] = 'project'
                         else:
                             continue
         return dict({'append': projects_dict, 'remove': projects_dict_rm})

@@ -15,33 +15,51 @@ class Gitlab(Bot):
 
     def add_subscription(self, author, message):
         projects = self.load_projects()
-        command, type, project = message.split()
-        if type == 'namespace':
-            projects['namespaces'][project] = set(projects['namespaces'][project])
-            projects['namespaces'][project].add(author)
-            projects['namespaces'][project] = list(projects['namespaces'][project])
-        elif type == 'project':
-            for namespace, projectss in projects.items():
-                if project in projectss:
-                    projects[namespace][project] = set(projects[namespace][project])
-                    projects[namespace][project].add(author)
-                    projects[namespace][project] = list(projects[namespace][project])
-        self.write_data(self.projects_json, projects)
+        try:
+            command, type, project = message.split()
+            if type == 'namespace':
+                projects['namespaces'][project] = set(projects['namespaces'][project])
+                projects['namespaces'][project].add(author)
+                projects['namespaces'][project] = list(projects['namespaces'][project])
+            elif type == 'project':
+                for namespace, projectss in projects.items():
+                    if project in projectss:
+                        projects[namespace][project] = set(projects[namespace][project])
+                        projects[namespace][project].add(author)
+                        projects[namespace][project] = list(projects[namespace][project])
+            self.write_data(self.projects_json, projects)
+            self.sendMessage(author, 'You add subscription')
+        except ValueError:
+            self.sendMessage(author, 'You must write project/namespace')
+
 
     def delete_subscription(self, author, message):
         projects = self.load_projects()
-        command, type, project = message.split()
-        if type == 'namespace':
-            projects['namespaces'][project] = set(projects['namespaces'][project])
-            projects['namespaces'][project].remove(author)
-            projects['namespaces'][project] = list(projects['namespaces'][project])
-        elif type == 'project':
-            for namespace, projectss in projects.items():
-                if project in projectss:
-                    projects[namespace][project] = set(projects[namespace][project])
-                    projects[namespace][project].remove(author)
-                    projects[namespace][project] = list(projects[namespace][project])
-        self.write_data(self.projects_json, projects)
+        try:
+            command, type, project = message.split()
+            if type == 'namespace':
+                projects['namespaces'][project] = set(projects['namespaces'][project])
+                try:
+                    projects['namespaces'][project].remove(author)
+                except KeyError:
+                    print('Chat id not found')
+                finally:
+                    projects['namespaces'][project] = list(projects['namespaces'][project])
+            elif type == 'project':
+                for namespace, projectss in projects.items():
+                    if project in projectss:
+                        print(projects[namespace][project])
+                        projects[namespace][project] = set(projects[namespace][project])
+                        try:
+                            projects[namespace][project].remove(author)
+                        except KeyError:
+                            print('Chat id not found')
+                        finally:
+                            projects[namespace][project] = list(projects[namespace][project])
+            self.write_data(self.projects_json, projects)
+            self.sendMessage(author, 'You delete subscription')
+        except ValueError:
+            self.sendMessage(author, 'You must write project/namespace')
 
     def list_subscription(self, data):
         list_projects = self.load_projects()
@@ -107,10 +125,8 @@ def main():
                     bot.list_subscription(data)
                 elif '/add_subscription' in (data["message"]["text"]):
                     bot.add_subscription(data["message"]['chat']['id'], data["message"]["text"])
-                    bot.sendMessage(data["message"]['chat']['id'], 'You add subscription')
                 elif '/delete_subscription' in (data["message"]["text"]):
                     bot.delete_subscription(data["message"]['chat']['id'], data["message"]["text"])
-                    bot.sendMessage(data["message"]['chat']['id'], 'You delete subscription')
                 elif '/projects_pull' in (data["message"]["text"]):
                     gitlab.get_project()
                 elif '/projects_convert' in (data["message"]["text"]): ## !!! Only the first time , second time is overwrite file
@@ -140,7 +156,6 @@ email {8}
                                                                 data['build_id'], \
                                                                 data['user']['name'], data['user']['email'])
         if data['build_status'] == 'success' or data['build_status'] == 'failed':
-            bot.send_to_all(msg)
             bot.send_to_subscriptions(data['project_name'], msg)
         return jsonify({'status': 'ok'})
 
