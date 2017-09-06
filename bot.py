@@ -47,7 +47,7 @@ class Bot(Gitlab_api):
         projects_list = self.load_projects()
         namespace, project = project_name.split(' / ')
         receivers = projects_list[namespace][project]
-        print(receivers)
+        receivers.extend(projects_list['namespaces'][namespace])
         for receiver in receivers:
             self.sendMessage(receiver, msg)
 
