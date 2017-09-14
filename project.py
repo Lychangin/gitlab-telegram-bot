@@ -50,14 +50,15 @@ class Gitlab_api():
         return project_json
 
     def project_convert_update(self):
-        projects_new = json.loads(self.get_project())
+        with open(self.file) as file:
+            projects_new = json.load(file)
 
         with open(self.projects_json) as file:
             projects_sorted = json.load(file)
 
         for project in projects_new:
-            if project['namespace']['name'] in projects_sorted.keys():
-                if project['name'] not in projects_sorted[project['namespace']['name']][project['name']]:
+            if project['namespace']['name'] in projects_sorted['namespaces'].keys():
+                if project['name'] not in projects_sorted[project['namespace']['name']].keys():
                     projects_sorted[project['namespace']['name']][project['name']] = {}
         self.write_data(self.projects_json, projects_sorted)
         return projects_sorted

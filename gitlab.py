@@ -128,11 +128,14 @@ def main():
                 elif '/delete_subscription' in (data["message"]["text"]):
                     bot.delete_subscription(data["message"]['chat']['id'], data["message"]["text"])
                 elif '/projects_pull' in (data["message"]["text"]):
+                    bot.sendMessage(data["message"]['chat']['id'], 'Please, wait a few minutes')
                     gitlab.get_project()
+                    bot.sendMessage(data["message"]['chat']['id'], 'That is ok')
                 elif '/projects_convert' in (data["message"]["text"]): ## !!! Only the first time , second time is overwrite file
                     gitlab.project_convert()
                 elif '/projects_update' in (data["message"]["text"]):
                     gitlab.project_convert_update()
+                    bot.sendMessage(data["message"]['chat']['id'], 'That is ok')
         if "inline_query" in data:
             bot.answerInlineQuery(data)
         return jsonify({'status': 'ok'})
